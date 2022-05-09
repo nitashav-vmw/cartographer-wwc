@@ -1,0 +1,16 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: GitRepository
+metadata:
+  finalizers:
+    - finalizers.fluxcd.io
+  name: carto-java-web-app-wwc
+  namespace: tap-dev
+spec:
+  gitImplementation: go-git
+  ignore: |
+    !.git
+  interval: 1m0s
+  ref:
+    branch: master
+  timeout: 20s
+  url: https://github.com/nitashav-vmw/tanzu-java-web-app-git 

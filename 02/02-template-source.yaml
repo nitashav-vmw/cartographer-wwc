@@ -1,0 +1,21 @@
+apiVersion: carto.run/v1alpha1
+kind: ClusterSourceTemplate
+metadata:
+  name: example-source-template
+spec:
+  revisionPath: .status.artifact.revision
+  urlPath: .status.artifact.url
+  template:
+    apiVersion: source.toolkit.fluxcd.io/v1beta1
+    kind: GitRepository
+    metadata:
+      name: wwc 
+    spec:
+      gitImplementation: go-git
+      ignore: |
+        !.git
+      interval: 1m0s
+      ref:
+        branch: master
+      timeout: 20s
+      url: https://github.com/nitashav-vmw/tanzu-java-web-app-git

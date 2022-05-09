@@ -1,0 +1,21 @@
+apiVersion: kpack.io/v1alpha2
+kind: Image
+metadata:
+  generation: 1
+  name: carto-java-web-app-wwc
+  namespace: tap-dev
+spec:
+  builder:
+    kind: ClusterBuilder
+    name: default
+  cache:
+    volume:
+      size: 2G
+  failedBuildHistoryLimit: 10
+  imageTaggingStrategy: BuildNumber
+  serviceAccountName: default
+  source:
+    blob:
+      url: {source-from-flux} 
+  successBuildHistoryLimit: 10
+  tag: nitashav.azurecr.io/build-service/carto-java-web-app-wwc

@@ -1,0 +1,23 @@
+apiVersion: carto.run/v1alpha1
+kind: ClusterImageTemplate
+metadata:
+  name: example-image-template
+spec:
+  imagePath: .status.latestImage
+  template:
+    apiVersion: kpack.io/v1alpha2
+    kind: Image
+    metadata:
+     generation: 1
+     name: tanzu-java-web-app-wwc
+    spec:
+     builder:
+       kind: ClusterBuilder
+       name: default
+     imageTaggingStrategy: BuildNumber
+     serviceAccountName: default
+     source:
+      blob:
+        url: ${sources.source.url}$
+     successBuildHistoryLimit: 10
+     tag: nitashav.azurecr.io/build-service/tanzu-java-web-app-wwc

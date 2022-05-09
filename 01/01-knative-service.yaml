@@ -1,0 +1,20 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: carto-java-web-app-wwc
+  namespace: tap-dev
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/maxScale: "1"
+        autoscaling.knative.dev/minScale: "1"
+    spec:
+      containerConcurrency: 0
+      containers:
+          image: {image-from-kpack}
+          name: workload
+          securityContext:
+            runAsUser: 1000
+      serviceAccountName: default
+      timeoutSeconds: 300

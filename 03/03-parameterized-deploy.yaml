@@ -1,0 +1,69 @@
+apiVersion: carto.run/v1alpha1
+kind: ClusterTemplate
+metadata:
+  name: app-deploy
+spec:
+  ytt: |
+    #@ load("@ytt:data", "data")
+    #@ load("@ytt:yaml", "yaml")  
+    #@ def service():
+    apiVersion: serving.knative.dev/v1
+    kind: Service
+    metadata:
+      name: #@ data.values.workload.metadata.name
+    spec:
+      template:
+        metadata:
+          annotations:
+            autoscaling.knative.dev/minScale: "1"
+        spec:
+          serviceAccountName: default
+          containers:
+            - name: workload
+              #@ if hasattr(data.values.workload.spec.build, "env"):
+              env:
+              #@ for var in data.values.workload.spec.env:
+              - name: #@ var.name
+                value: #@ var.value
+              #@ end
+              #@ end
+              image: #@ data.values.images.image.image
+              securityContext:
+                runAsUser: 1000
+    #@ end
+    #@ def config():
+    apiVersion: kapp.k14s.io/v1alpha1
+    kind: Config
+    rebaseRules:
+      - path:
+          - metadata
+          - annotations
+          - serving.knative.dev/creator
+        type: copy
+        sources: [new, existing]
+        resourceMatchers: &matchers
+          - apiVersionKindMatcher:
+              apiVersion: serving.knative.dev/v1
+              kind: Service
+      - path:
+          - metadata
+          - annotations
+          - serving.knative.dev/lastModifier
+        type: copy
+        sources: [new, existing]
+        resourceMatchers: *matchers
+    #@ end
+    apiVersion: kappctrl.k14s.io/v1alpha1
+    kind: App
+    metadata:
+      name: #@ data.values.workload.metadata.name
+    spec:
+      serviceAccountName: default
+      fetch:
+        - inline:
+            paths:
+              manifest.yml: #@ yaml.encode(service()) + "---\n" + yaml.encode(config())
+      template:
+        - ytt: {}
+      deploy:
+        - kapp: {}

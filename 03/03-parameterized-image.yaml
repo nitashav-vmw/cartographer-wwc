@@ -1,0 +1,26 @@
+apiVersion: carto.run/v1alpha1
+kind: ClusterImageTemplate
+metadata:
+  name: example-image-template
+spec:
+  params:
+    - name: image_prefix
+      default: nitashav.azurecr.io/build-service/
+  imagePath: .status.latestImage
+  ytt: |
+    #@ load("@ytt:data", "data")
+    apiVersion: kpack.io/v1alpha2
+    kind: Image
+    metadata:
+      name: #@ data.values.workload.metadata.name
+    spec:
+      tag: #@ "".join([data.values.params.image_prefix,data.values.workload.metadata.name])
+      serviceAccountName: default
+      imageTaggingStrategy: BuildNumber
+      successBuildHistoryLimit: 10
+      builder:
+        kind: ClusterBuilder
+        name: default
+      source:
+        blob:
+          url: #@ data.values.source.url

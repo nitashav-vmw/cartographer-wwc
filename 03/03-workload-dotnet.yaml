@@ -1,0 +1,13 @@
+apiVersion: carto.run/v1alpha1
+kind: Workload
+metadata:
+  name: tanzu-dotnet-web-app-wwc
+  labels:
+    apps.tanzu.vmware.com/workload-type: basic
+    app.kubernetes.io/part-of: tanzu-dotnet-web-app-wwc
+spec:
+  source:
+    git:
+      url: https://github.com/fjb4/tanzu-dotnet-web-app 
+      ref:
+        branch: master
